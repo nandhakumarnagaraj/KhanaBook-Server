@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/user")
+@RequestMapping("/api/v1/sync/config/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService service;

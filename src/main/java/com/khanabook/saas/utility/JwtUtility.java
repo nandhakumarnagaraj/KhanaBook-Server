@@ -42,7 +42,7 @@ public class JwtUtility {
                 .getBody();
     }
 
-    public Boolean isTokenExpired(String token) {
+    public String generateToken(String username, Long restaurantId) { SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)); return Jwts.builder().setSubject(username).claim("restaurantId", restaurantId).setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)).signWith(key).compact(); } public Boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 }

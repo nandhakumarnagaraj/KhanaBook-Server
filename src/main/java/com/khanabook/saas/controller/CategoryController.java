@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/category")
+@RequestMapping("/api/v1/sync/menu/categories")
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService service;
