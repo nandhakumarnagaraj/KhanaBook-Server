@@ -15,8 +15,7 @@ public class GenericSyncService {
     public <T extends BaseSyncEntity> List<Integer> handlePushSync(
             Long tenantId,
             List<T> payload,
-            SyncRepository<T, Long> repository
-    ) {
+            SyncRepository<T, Long> repository) {
         List<Integer> successfulLocalIds = new ArrayList<>();
 
         for (T incomingRecord : payload) {
@@ -27,8 +26,7 @@ public class GenericSyncService {
                 T existingRecord = repository.findByRestaurantIdAndDeviceIdAndLocalId(
                         tenantId,
                         incomingRecord.getDeviceId(),
-                        incomingRecord.getLocalId()
-                ).orElse(null);
+                        incomingRecord.getLocalId()).orElse(null);
 
                 if (existingRecord != null) {
                     if (incomingRecord.getUpdatedAt() > existingRecord.getUpdatedAt()) {
@@ -40,9 +38,11 @@ public class GenericSyncService {
                 }
                 successfulLocalIds.add(incomingRecord.getLocalId());
             } catch (Exception e) {
-                System.err.println("Sync Error: " + e.getMessage());
+                System.err.println("Sync Error for device " + incomingRecord.getDeviceId() + " : " + e.getMessage());
             }
         }
+        System.out.println("\n[GenericSyncService] Successfully synced " + successfulLocalIds.size()
+                + " records for Tenant ID: " + tenantId);
         return successfulLocalIds;
     }
 }
