@@ -27,7 +27,6 @@ We chose our tools not because they're trendy, but because they are reliable—j
 *   **Java & Spring Boot:** For a foundation as solid as a cast-iron skillet.
 *   **PostgreSQL:** To keep your records safe and organized for years to come.
 *   **JWT Security:** Because your trust—and your customers' trust—is everything.
-*   *(And yes, we have a React + Vite frontend that makes all this power look beautiful!)*
 
 ---
 
