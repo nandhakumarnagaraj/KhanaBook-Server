@@ -34,6 +34,21 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token, 1L, "Google User", "admin"));
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
+        System.out.println("\n[AuthController] Signup Request received for: " + request.getEmail());
+
+        // In a real app, you would create the tenant, user, and restaurant profile
+        // here.
+        // For this demo/test, we give them a mocked tenant/restaurant ID and a valid
+        // token.
+        Long newRestaurantId = System.currentTimeMillis() % 10000;
+        String token = jwtUtility.generateToken(request.getEmail(), newRestaurantId);
+
+        System.out.println("[AuthController] JWT Token successfully generated for new user.");
+        return ResponseEntity.ok(new AuthResponse(token, newRestaurantId, request.getName(), "admin"));
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -48,6 +63,16 @@ public class AuthController {
     @NoArgsConstructor
     public static class GoogleLoginRequest {
         private String idToken;
+        private String deviceId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SignupRequest {
+        private String email;
+        private String name;
+        private String password;
         private String deviceId;
     }
 
