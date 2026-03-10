@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class BillPayment extends BaseSyncEntity {
 
-    @Column(name = "bill_id")
+    @Column(name = "bill_id", nullable = true)
     private Integer billId;
 
     @Column(name = "payment_mode")

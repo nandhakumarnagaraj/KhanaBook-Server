@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/sync/billpayment")
+@RequestMapping("/sync/bills/payments")
 @RequiredArgsConstructor
 public class BillPaymentController {
     private final BillPaymentService service;

@@ -56,6 +56,17 @@ public class GenericSyncService {
         // 4. Process the payload in memory
         for (T incomingRecord : payload) {
             try {
+                // RECOVERY: If localId is null but id is present, use it
+                if (incomingRecord.getLocalId() == null && incomingRecord.getId() != null) {
+                    incomingRecord.setLocalId(incomingRecord.getId().intValue());
+                    incomingRecord.setId(null); // Clear server ID for new insert
+                }
+
+                if (incomingRecord.getLocalId() == null) {
+                    System.err.println("[GenericSyncService] Skipping record with NULL localId!");
+                    continue;
+                }
+
                 incomingRecord.setRestaurantId(tenantId);
                 incomingRecord.setServerUpdatedAt(serverTime); // Enforce Server Time
 
