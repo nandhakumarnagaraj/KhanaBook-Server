@@ -20,6 +20,10 @@ public class GenericSyncService {
             List<T> payload,
             SyncRepository<T, Long> repository) {
 
+        if (tenantId == null) {
+            throw new IllegalArgumentException("Tenant ID (Restaurant ID) cannot be null. Ensure valid JWT is provided.");
+        }
+
         if (payload == null || payload.isEmpty()) {
             return new ArrayList<>();
         }
@@ -41,8 +45,13 @@ public class GenericSyncService {
                 tenantId, deviceId, incomingLocalIds);
 
         // 3. Map existing records by localId for fast O(1) lookup
+        // FIX: Use a merge function (existing, replacement) -> most_recent to handle accidental duplicates in DB
         Map<Integer, T> existingRecordMap = existingRecords.stream()
-                .collect(Collectors.toMap(BaseSyncEntity::getLocalId, Function.identity()));
+                .collect(Collectors.toMap(
+                        BaseSyncEntity::getLocalId,
+                        Function.identity(),
+                        (existing, replacement) -> existing.getUpdatedAt() > replacement.getUpdatedAt() ? existing : replacement
+                ));
 
         // 4. Process the payload in memory
         for (T incomingRecord : payload) {

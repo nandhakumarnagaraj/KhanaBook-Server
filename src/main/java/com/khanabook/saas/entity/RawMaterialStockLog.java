@@ -16,6 +16,9 @@ public class RawMaterialStockLog extends BaseSyncEntity {
     @Column(name = "raw_material_id")
     private Integer rawMaterialId;
 
+    @Column(name = "server_raw_material_id")
+    private Long serverRawMaterialId;
+
     @Column(name = "delta")
     private Double delta;
 
