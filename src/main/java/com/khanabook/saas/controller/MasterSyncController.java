@@ -15,7 +15,7 @@ import lombok.Data;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/sync/master")
+@RequestMapping("/sync/master")
 @RequiredArgsConstructor
 public class MasterSyncController {
 

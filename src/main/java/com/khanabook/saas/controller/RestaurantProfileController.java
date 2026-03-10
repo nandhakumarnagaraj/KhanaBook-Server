@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/restaurantprofile")
+@RequestMapping("/sync/restaurantprofile")
 @RequiredArgsConstructor
 public class RestaurantProfileController {
     private final RestaurantProfileService service;

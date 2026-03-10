@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class GenericSyncService {
@@ -16,33 +19,64 @@ public class GenericSyncService {
             Long tenantId,
             List<T> payload,
             SyncRepository<T, Long> repository) {
-        List<Integer> successfulLocalIds = new ArrayList<>();
 
+        if (payload == null || payload.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Integer> successfulLocalIds = new ArrayList<>();
+        List<T> recordsToSave = new ArrayList<>();
+        
+        // 1. Extract all localIds from the incoming payload
+        List<Integer> incomingLocalIds = payload.stream()
+                .map(BaseSyncEntity::getLocalId)
+                .collect(Collectors.toList());
+
+        // Assuming all records in a single payload come from the same device
+        String deviceId = payload.get(0).getDeviceId();
+        long serverTime = System.currentTimeMillis();
+
+        // 2. Fetch all existing records from the DB in ONE query
+        List<T> existingRecords = repository.findByRestaurantIdAndDeviceIdAndLocalIdIn(
+                tenantId, deviceId, incomingLocalIds);
+
+        // 3. Map existing records by localId for fast O(1) lookup
+        Map<Integer, T> existingRecordMap = existingRecords.stream()
+                .collect(Collectors.toMap(BaseSyncEntity::getLocalId, Function.identity()));
+
+        // 4. Process the payload in memory
         for (T incomingRecord : payload) {
             try {
                 incomingRecord.setRestaurantId(tenantId);
-                incomingRecord.setServerUpdatedAt(System.currentTimeMillis()); // Enforce Server Time
+                incomingRecord.setServerUpdatedAt(serverTime); // Enforce Server Time
 
-                T existingRecord = repository.findByRestaurantIdAndDeviceIdAndLocalId(
-                        tenantId,
-                        incomingRecord.getDeviceId(),
-                        incomingRecord.getLocalId()).orElse(null);
+                T existingRecord = existingRecordMap.get(incomingRecord.getLocalId());
 
                 if (existingRecord != null) {
+                    // It exists, check if we need to update
                     if (incomingRecord.getUpdatedAt() > existingRecord.getUpdatedAt()) {
                         incomingRecord.setId(existingRecord.getId());
-                        repository.save(incomingRecord);
+                        recordsToSave.add(incomingRecord);
+                        successfulLocalIds.add(incomingRecord.getLocalId());
                     }
                 } else {
-                    repository.save(incomingRecord);
+                    // It doesn't exist, insert new
+                    recordsToSave.add(incomingRecord);
+                    successfulLocalIds.add(incomingRecord.getLocalId());
                 }
-                successfulLocalIds.add(incomingRecord.getLocalId());
             } catch (Exception e) {
                 System.err.println("Sync Error for device " + incomingRecord.getDeviceId() + " : " + e.getMessage());
             }
         }
-        System.out.println("\n[GenericSyncService] Successfully synced " + successfulLocalIds.size()
+
+        // 5. Save all records to the DB in a single batch
+        if (!recordsToSave.isEmpty()) {
+            repository.saveAll(recordsToSave);
+        }
+
+        System.out.println("\n[GenericSyncService] Successfully batch synced " + successfulLocalIds.size()
                 + " records for Tenant ID: " + tenantId);
+        
         return successfulLocalIds;
     }
 }

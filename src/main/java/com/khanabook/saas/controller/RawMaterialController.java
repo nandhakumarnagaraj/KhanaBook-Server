@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/rawmaterial")
+@RequestMapping("/sync/rawmaterial")
 @RequiredArgsConstructor
 public class RawMaterialController {
     private final RawMaterialService service;

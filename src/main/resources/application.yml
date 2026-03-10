@@ -11,6 +11,12 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1

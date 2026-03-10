@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/billitem")
+@RequestMapping("/sync/billitem")
 @RequiredArgsConstructor
 public class BillItemController {
     private final BillItemService service;

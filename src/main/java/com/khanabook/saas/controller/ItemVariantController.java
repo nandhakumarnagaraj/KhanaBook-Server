@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/itemvariant")
+@RequestMapping("/sync/itemvariant")
 @RequiredArgsConstructor
 public class ItemVariantController {
     private final ItemVariantService service;

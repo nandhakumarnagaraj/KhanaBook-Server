@@ -12,4 +12,7 @@ public interface SyncRepository<T, ID> extends JpaRepository<T, ID> {
     
     // UPSERT Logic: Find exact record to update
     Optional<T> findByRestaurantIdAndDeviceIdAndLocalId(Long restaurantId, String deviceId, Integer localId);
+    
+    // ADD THIS NEW METHOD for batch fetching
+    List<T> findByRestaurantIdAndDeviceIdAndLocalIdIn(Long restaurantId, String deviceId, List<Integer> localIds);
 }

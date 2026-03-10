@@ -17,7 +17,7 @@ import com.khanabook.saas.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/sync/menu/categories")
+@RequestMapping("/sync/menu/categories")
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService service;

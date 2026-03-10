@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/menuitem")
+@RequestMapping("/sync/menuitem")
 @RequiredArgsConstructor
 public class MenuItemController {
     private final MenuItemService service;

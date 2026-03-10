@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/recipeingredient")
+@RequestMapping("/sync/recipeingredient")
 @RequiredArgsConstructor
 public class RecipeIngredientController {
     private final RecipeIngredientService service;

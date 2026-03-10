@@ -9,7 +9,7 @@ import java.util.List;
 import com.khanabook.saas.security.TenantContext;
 
 @RestController
-@RequestMapping("/api/v1/sync/materialbatch")
+@RequestMapping("/sync/materialbatch")
 @RequiredArgsConstructor
 public class MaterialBatchController {
     private final MaterialBatchService service;
