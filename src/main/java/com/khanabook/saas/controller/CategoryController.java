@@ -23,7 +23,7 @@ public class CategoryController {
     private final CategoryService service;
 
     @PostMapping("/push")
-    public ResponseEntity<List<Integer>> push(@RequestBody List<Category> payload) {
+    public ResponseEntity<List<String>> push(@RequestBody List<Category> payload) {
         // TenantId automatically extracted by JwtFilter
         return ResponseEntity.ok(service.pushData(TenantContext.getCurrentTenant(), payload));
     }
@@ -31,7 +31,8 @@ public class CategoryController {
     @GetMapping("/pull")
     public ResponseEntity<List<Category>> pull(
             @RequestParam Long lastSyncTimestamp,
-            @RequestParam String deviceId) {
-        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId));
+            @RequestParam String deviceId,
+            @RequestParam(required = false, defaultValue = "100") Integer limit) {
+        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId, limit));
     }
 }

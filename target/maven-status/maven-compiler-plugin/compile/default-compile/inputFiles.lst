@@ -22,6 +22,7 @@ C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanaboo
 C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanabook\saas\security\TenantContext.java
 C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanabook\saas\service\impl\BillPaymentServiceImpl.java
 C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanabook\saas\service\impl\MaterialBatchServiceImpl.java
+C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanabook\saas\sync\payload\FullBillPushRequest.java
 C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanabook\saas\entity\RecipeIngredient.java
 C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanabook\saas\controller\RecipeIngredientController.java
 C:\Users\nandh\AndroidStudioProjects\KhanaBookBackend\src\main\java\com\khanabook\saas\repository\UserRepository.java

@@ -5,5 +5,5 @@ import com.khanabook.saas.sync.repository.SyncRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BillPaymentRepository extends SyncRepository<BillPayment, Long> {
+public interface BillPaymentRepository extends SyncRepository<BillPayment, String> {
 }

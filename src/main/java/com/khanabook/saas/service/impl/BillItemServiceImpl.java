@@ -5,6 +5,8 @@ import com.khanabook.saas.repository.BillItemRepository;
 import com.khanabook.saas.service.BillItemService;
 import com.khanabook.saas.sync.service.GenericSyncService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -15,12 +17,12 @@ public class BillItemServiceImpl implements BillItemService {
     private final GenericSyncService genericSyncService;
 
     @Override
-    public List<Integer> pushData(Long tenantId, List<BillItem> payload) {
+    public List<String> pushData(Long tenantId, List<BillItem> payload) {
         return genericSyncService.handlePushSync(tenantId, payload, repository);
     }
 
     @Override
-    public List<BillItem> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId) {
-        return repository.findByRestaurantIdAndUpdatedAtGreaterThanAndDeviceIdNot(tenantId, lastSyncTimestamp, deviceId);
+    public List<BillItem> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId, Integer limit) {
+        return repository.findByRestaurantIdAndServerUpdatedAtGreaterThanAndDeviceIdNotOrderByServerUpdatedAtAsc(tenantId, lastSyncTimestamp, deviceId, PageRequest.of(0, limit));
     }
 }

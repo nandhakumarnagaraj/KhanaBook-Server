@@ -15,7 +15,7 @@ public class UserController {
     private final UserService service;
 
     @PostMapping("/push")
-    public ResponseEntity<List<Integer>> push(@RequestBody List<User> payload) {
+    public ResponseEntity<List<String>> push(@RequestBody List<User> payload) {
         // TenantId automatically extracted by JwtFilter
         return ResponseEntity.ok(service.pushData(TenantContext.getCurrentTenant(), payload));
     }
@@ -23,7 +23,8 @@ public class UserController {
     @GetMapping("/pull")
     public ResponseEntity<List<User>> pull(
             @RequestParam Long lastSyncTimestamp,
-            @RequestParam String deviceId) {
-        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId));
+            @RequestParam String deviceId,
+            @RequestParam(required = false, defaultValue = "100") Integer limit) {
+        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId, limit));
     }
 }

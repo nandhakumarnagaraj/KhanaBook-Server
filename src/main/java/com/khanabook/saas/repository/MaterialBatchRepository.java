@@ -5,5 +5,5 @@ import com.khanabook.saas.sync.repository.SyncRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MaterialBatchRepository extends SyncRepository<MaterialBatch, Long> {
+public interface MaterialBatchRepository extends SyncRepository<MaterialBatch, String> {
 }

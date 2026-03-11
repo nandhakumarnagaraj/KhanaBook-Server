@@ -17,7 +17,7 @@ public class StockLog extends BaseSyncEntity {
     private Integer menuItemId;
 
     @Column(name = "server_menu_item_id")
-    private Long serverMenuItemId;
+    private String serverMenuItemId;
 
     @Column(name = "delta")
     private Integer delta;

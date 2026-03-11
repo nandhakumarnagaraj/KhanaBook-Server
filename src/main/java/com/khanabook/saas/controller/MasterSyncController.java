@@ -36,24 +36,25 @@ public class MasterSyncController {
   @GetMapping("/pull")
   public ResponseEntity<MasterSyncResponse> pullMasterSync(
       @RequestParam Long lastSyncTimestamp,
-      @RequestParam String deviceId) {
+      @RequestParam String deviceId,
+      @RequestParam(required = false, defaultValue = "500") Integer limit) {
 
     Long tenantId = TenantContext.getCurrentTenant();
 
     MasterSyncResponse response = new MasterSyncResponse();
-    response.setProfiles(restaurantProfileService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setUsers(userService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setCategories(categoryService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setMenuItems(menuItemService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setItemVariants(itemVariantService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setRawMaterials(rawMaterialService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setMaterialBatches(materialBatchService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setRecipeIngredients(recipeIngredientService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setStockLogs(stockLogService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setRawMaterialStockLogs(rawMaterialStockLogService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setBills(billService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setBillItems(billItemService.pullData(tenantId, lastSyncTimestamp, deviceId));
-    response.setBillPayments(billPaymentService.pullData(tenantId, lastSyncTimestamp, deviceId));
+    response.setProfiles(restaurantProfileService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setUsers(userService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setCategories(categoryService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setMenuItems(menuItemService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setItemVariants(itemVariantService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setRawMaterials(rawMaterialService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setMaterialBatches(materialBatchService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setRecipeIngredients(recipeIngredientService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setStockLogs(stockLogService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setRawMaterialStockLogs(rawMaterialStockLogService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setBills(billService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setBillItems(billItemService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
+    response.setBillPayments(billPaymentService.pullData(tenantId, lastSyncTimestamp, deviceId, limit));
 
     return ResponseEntity.ok(response);
   }

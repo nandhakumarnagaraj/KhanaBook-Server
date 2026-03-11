@@ -5,5 +5,5 @@ import com.khanabook.saas.sync.repository.SyncRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StockLogRepository extends SyncRepository<StockLog, Long> {
+public interface StockLogRepository extends SyncRepository<StockLog, String> {
 }

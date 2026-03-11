@@ -7,6 +7,8 @@ import com.khanabook.saas.repository.RawMaterialStockLogRepository;
 import com.khanabook.saas.service.RawMaterialStockLogService;
 import com.khanabook.saas.sync.service.GenericSyncService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +21,7 @@ public class RawMaterialStockLogServiceImpl implements RawMaterialStockLogServic
     private final GenericSyncService genericSyncService;
 
     @Override
-    public List<Integer> pushData(Long tenantId, List<RawMaterialStockLog> payload) {
+    public List<String> pushData(Long tenantId, List<RawMaterialStockLog> payload) {
         // Resolve Server IDs for raw materials
         for (RawMaterialStockLog log : payload) {
             if (log.getServerRawMaterialId() == null && log.getRawMaterialId() != null) {
@@ -28,7 +30,7 @@ public class RawMaterialStockLogServiceImpl implements RawMaterialStockLogServic
                 rm.ifPresent(item -> log.setServerRawMaterialId(item.getId()));
                 
                 if (log.getServerRawMaterialId() == null) {
-                    log.setServerRawMaterialId(0L); // Placeholder
+                    log.setServerRawMaterialId("0"); // Placeholder
                 }
             }
         }
@@ -36,7 +38,7 @@ public class RawMaterialStockLogServiceImpl implements RawMaterialStockLogServic
     }
 
     @Override
-    public List<RawMaterialStockLog> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId) {
-        return repository.findByRestaurantIdAndUpdatedAtGreaterThanAndDeviceIdNot(tenantId, lastSyncTimestamp, deviceId);
+    public List<RawMaterialStockLog> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId, Integer limit) {
+        return repository.findByRestaurantIdAndServerUpdatedAtGreaterThanAndDeviceIdNotOrderByServerUpdatedAtAsc(tenantId, lastSyncTimestamp, deviceId, PageRequest.of(0, limit));
     }
 }

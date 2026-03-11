@@ -11,18 +11,17 @@ import lombok.Setter;
 @Setter
 public abstract class BaseSyncEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonProperty("serverId")
-    private Long id;
-
-    @Column(name = "local_id", nullable = true) // Temporary nullable to debug
-    @JsonProperty("localId")
-    @JsonAlias({"id", "localId"})
-    private Integer localId;
+    @Column(name = "id", nullable = false, length = 36)
+    @JsonProperty("id")
+    private String id; // Globally Unique Identifier (UUID)
 
     @Column(name = "device_id", nullable = false)
     @JsonProperty("deviceId")
     private String deviceId;
+
+    @Column(name = "local_id", nullable = false)
+    @JsonProperty("localId")
+    private Integer localId; // Mobile-local ID
 
     @Column(name = "restaurant_id", nullable = false)
     @JsonProperty("restaurantId")
@@ -40,4 +39,8 @@ public abstract class BaseSyncEntity {
     @Column(name = "server_updated_at", nullable = false)
     @JsonProperty("serverUpdatedAt")
     private Long serverUpdatedAt = System.currentTimeMillis();
+
+    @Version
+    @JsonProperty("version")
+    private Integer version;
 }

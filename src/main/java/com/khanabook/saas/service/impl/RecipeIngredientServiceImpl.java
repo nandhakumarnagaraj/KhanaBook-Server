@@ -5,6 +5,8 @@ import com.khanabook.saas.repository.RecipeIngredientRepository;
 import com.khanabook.saas.service.RecipeIngredientService;
 import com.khanabook.saas.sync.service.GenericSyncService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -15,12 +17,12 @@ public class RecipeIngredientServiceImpl implements RecipeIngredientService {
     private final GenericSyncService genericSyncService;
 
     @Override
-    public List<Integer> pushData(Long tenantId, List<RecipeIngredient> payload) {
+    public List<String> pushData(Long tenantId, List<RecipeIngredient> payload) {
         return genericSyncService.handlePushSync(tenantId, payload, repository);
     }
 
     @Override
-    public List<RecipeIngredient> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId) {
-        return repository.findByRestaurantIdAndUpdatedAtGreaterThanAndDeviceIdNot(tenantId, lastSyncTimestamp, deviceId);
+    public List<RecipeIngredient> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId, Integer limit) {
+        return repository.findByRestaurantIdAndServerUpdatedAtGreaterThanAndDeviceIdNotOrderByServerUpdatedAtAsc(tenantId, lastSyncTimestamp, deviceId, PageRequest.of(0, limit));
     }
 }

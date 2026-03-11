@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "rawmaterials")
 @Getter
@@ -20,10 +22,10 @@ public class RawMaterial extends BaseSyncEntity {
     private String unit;
 
     @Column(name = "current_stock")
-    private Double currentStock;
+    private BigDecimal currentStock;
 
     @Column(name = "low_stock_threshold")
-    private Double lowStockThreshold;
+    private BigDecimal lowStockThreshold;
 
     @Column(name = "last_updated")
     private String lastUpdated;

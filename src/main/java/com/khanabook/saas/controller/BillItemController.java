@@ -15,21 +15,22 @@ public class BillItemController {
     private final BillItemService service;
 
     @PostMapping("/push")
-    public ResponseEntity<?> push(@RequestBody List<BillItem> payload) {
+    public ResponseEntity<List<String>> push(@RequestBody List<BillItem> payload) {
         try {
             System.out.println("\n[BillItemController] Received push for " + payload.size() + " items for Tenant: " + TenantContext.getCurrentTenant());
             return ResponseEntity.ok(service.pushData(TenantContext.getCurrentTenant(), payload));
         } catch (Exception e) {
             System.err.println("[BillItemController] Error pushing data: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+            throw e;
         }
     }
 
     @GetMapping("/pull")
     public ResponseEntity<List<BillItem>> pull(
             @RequestParam Long lastSyncTimestamp,
-            @RequestParam String deviceId) {
-        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId));
+            @RequestParam String deviceId,
+            @RequestParam(required = false, defaultValue = "100") Integer limit) {
+        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId, limit));
     }
 }

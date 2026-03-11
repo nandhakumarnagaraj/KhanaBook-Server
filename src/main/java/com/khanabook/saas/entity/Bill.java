@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "bills")
@@ -32,31 +33,31 @@ public class Bill extends BaseSyncEntity {
     private String customerWhatsapp;
 
     @Column(name = "subtotal")
-    private Double subtotal;
+    private BigDecimal subtotal;
 
     @Column(name = "gst_percentage")
-    private Double gstPercentage;
+    private BigDecimal gstPercentage;
 
     @Column(name = "cgst_amount")
-    private Double cgstAmount;
+    private BigDecimal cgstAmount;
 
     @Column(name = "sgst_amount")
-    private Double sgstAmount;
+    private BigDecimal sgstAmount;
 
     @Column(name = "custom_tax_amount")
-    private Double customTaxAmount;
+    private BigDecimal customTaxAmount;
 
     @Column(name = "total_amount")
-    private Double totalAmount;
+    private BigDecimal totalAmount;
 
     @Column(name = "payment_mode")
     private String paymentMode;
 
     @Column(name = "part_amount_1")
-    private Double partAmount1;
+    private BigDecimal partAmount1;
 
     @Column(name = "part_amount_2")
-    private Double partAmount2;
+    private BigDecimal partAmount2;
 
     @Column(name = "payment_status")
     private String paymentStatus;
@@ -68,8 +69,8 @@ public class Bill extends BaseSyncEntity {
     private Integer createdBy;
 
     @Column(name = "created_at")
-    private String createdAt;
+    private Long createdAt;
 
     @Column(name = "paid_at")
-    private String paidAt;
+    private Long paidAt;
 }

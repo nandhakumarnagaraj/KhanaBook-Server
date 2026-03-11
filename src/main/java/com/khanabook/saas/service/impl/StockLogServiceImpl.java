@@ -7,6 +7,8 @@ import com.khanabook.saas.repository.StockLogRepository;
 import com.khanabook.saas.service.StockLogService;
 import com.khanabook.saas.sync.service.GenericSyncService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +21,7 @@ public class StockLogServiceImpl implements StockLogService {
     private final GenericSyncService genericSyncService;
 
     @Override
-    public List<Integer> pushData(Long tenantId, List<StockLog> payload) {
+    public List<String> pushData(Long tenantId, List<StockLog> payload) {
         // Resolve Server IDs for menu items
         for (StockLog log : payload) {
             if (log.getServerMenuItemId() == null && log.getMenuItemId() != null) {
@@ -31,7 +33,7 @@ public class StockLogServiceImpl implements StockLogService {
                 // But the system seems designed for device-specific localIds.
                 // If still null, we might need a default to avoid DB crash.
                 if (log.getServerMenuItemId() == null) {
-                    log.setServerMenuItemId(0L); // Placeholder to satisfy NOT NULL
+                    log.setServerMenuItemId("0"); // Placeholder to satisfy NOT NULL
                 }
             }
         }
@@ -39,7 +41,7 @@ public class StockLogServiceImpl implements StockLogService {
     }
 
     @Override
-    public List<StockLog> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId) {
-        return repository.findByRestaurantIdAndUpdatedAtGreaterThanAndDeviceIdNot(tenantId, lastSyncTimestamp, deviceId);
+    public List<StockLog> pullData(Long tenantId, Long lastSyncTimestamp, String deviceId, Integer limit) {
+        return repository.findByRestaurantIdAndServerUpdatedAtGreaterThanAndDeviceIdNotOrderByServerUpdatedAtAsc(tenantId, lastSyncTimestamp, deviceId, PageRequest.of(0, limit));
     }
 }

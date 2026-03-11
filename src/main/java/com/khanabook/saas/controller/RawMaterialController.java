@@ -15,7 +15,7 @@ public class RawMaterialController {
     private final RawMaterialService service;
 
     @PostMapping("/push")
-    public ResponseEntity<List<Integer>> push(@RequestBody List<RawMaterial> payload) {
+    public ResponseEntity<List<String>> push(@RequestBody List<RawMaterial> payload) {
         // TenantId automatically extracted by JwtFilter
         return ResponseEntity.ok(service.pushData(TenantContext.getCurrentTenant(), payload));
     }
@@ -23,7 +23,8 @@ public class RawMaterialController {
     @GetMapping("/pull")
     public ResponseEntity<List<RawMaterial>> pull(
             @RequestParam Long lastSyncTimestamp,
-            @RequestParam String deviceId) {
-        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId));
+            @RequestParam String deviceId,
+            @RequestParam(required = false, defaultValue = "100") Integer limit) {
+        return ResponseEntity.ok(service.pullData(TenantContext.getCurrentTenant(), lastSyncTimestamp, deviceId, limit));
     }
 }

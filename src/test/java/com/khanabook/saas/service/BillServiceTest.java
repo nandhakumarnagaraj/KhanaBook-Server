@@ -33,13 +33,14 @@ class BillServiceTest {
     private BillServiceImpl billService;
 
     @Captor
-    private ArgumentCaptor<Bill> billCaptor;
+    private ArgumentCaptor<List<Bill>> billsCaptor;
 
     private final Long AUTHENTICATED_RESTAURANT_ID = 99L;
     private final String DEVICE_ID = "TABLET_1";
 
-    private Bill createMobileBill(Integer localId, Long updatedAt) {
+    private Bill createMobileBill(String id, Integer localId, Long updatedAt) {
         Bill bill = new Bill();
+        bill.setId(id);
         bill.setLocalId(localId);
         bill.setUpdatedAt(updatedAt);
         bill.setDeviceId(DEVICE_ID);
@@ -50,42 +51,43 @@ class BillServiceTest {
     void givenExistingBill_whenMobileIsNewer_thenUpdateLwwSuccess() {
         Long oldServerTime = 1000L;
         Long newMobileTime = 2000L;
+        String billId = "bill-uuid-123";
 
         Bill existingDbBill = new Bill();
-        existingDbBill.setId(5L);
+        existingDbBill.setId(billId);
         existingDbBill.setUpdatedAt(oldServerTime);
         existingDbBill.setDeviceId(DEVICE_ID);
         existingDbBill.setLocalId(101);
 
-        Bill mobileBill = createMobileBill(101, newMobileTime);
+        Bill mobileBill = createMobileBill(billId, 101, newMobileTime);
 
-        when(billRepository.findByRestaurantIdAndDeviceIdAndLocalId(
-                eq(AUTHENTICATED_RESTAURANT_ID), eq(DEVICE_ID), eq(101)))
-                .thenReturn(Optional.of(existingDbBill));
+        when(billRepository.findAllById(List.of(billId)))
+                .thenReturn(List.of(existingDbBill));
 
-        List<Integer> successIds = billService.pushData(AUTHENTICATED_RESTAURANT_ID, List.of(mobileBill));
+        List<String> successIds = billService.pushData(AUTHENTICATED_RESTAURANT_ID, List.of(mobileBill));
 
-        verify(billRepository).save(billCaptor.capture());
-        Bill savedBill = billCaptor.getValue();
+        verify(billRepository).saveAll(billsCaptor.capture());
+        Bill savedBill = billsCaptor.getValue().get(0);
 
-        assertThat(savedBill.getId()).isEqualTo(5L);
+        assertThat(savedBill.getId()).isEqualTo(billId);
         assertThat(savedBill.getUpdatedAt()).isEqualTo(newMobileTime);
-        assertThat(successIds).containsExactly(101);
+        assertThat(successIds).containsExactly(billId);
     }
 
     @Test
     void givenHackedPayload_whenInsertNewBill_thenForceTenantIsolation() {
         Long maliciousRestaurantId = 666L;
-        Bill hackedMobileBill = createMobileBill(202, 1000L);
+        String billId = "new-bill-uuid";
+        Bill hackedMobileBill = createMobileBill(billId, 202, 1000L);
         hackedMobileBill.setRestaurantId(maliciousRestaurantId);
 
-        when(billRepository.findByRestaurantIdAndDeviceIdAndLocalId(anyLong(), anyString(), anyInt()))
-                .thenReturn(Optional.empty());
+        when(billRepository.findAllById(anyList()))
+                .thenReturn(List.of());
 
         billService.pushData(AUTHENTICATED_RESTAURANT_ID, List.of(hackedMobileBill));
 
-        verify(billRepository).save(billCaptor.capture());
-        Bill savedBill = billCaptor.getValue();
+        verify(billRepository).saveAll(billsCaptor.capture());
+        Bill savedBill = billsCaptor.getValue().get(0);
 
         // Server MUST override the malicious ID with the authenticated one
         assertThat(savedBill.getRestaurantId()).isEqualTo(AUTHENTICATED_RESTAURANT_ID);

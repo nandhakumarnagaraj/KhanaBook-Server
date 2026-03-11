@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 public class GenericSyncService {
 
     @Transactional
-    public <T extends BaseSyncEntity> List<Integer> handlePushSync(
+    public <T extends BaseSyncEntity> List<String> handlePushSync(
             Long tenantId,
             List<T> payload,
-            SyncRepository<T, Long> repository) {
+            SyncRepository<T, String> repository) {
 
         if (tenantId == null) {
             throw new IllegalArgumentException("Tenant ID (Restaurant ID) cannot be null. Ensure valid JWT is provided.");
@@ -28,75 +28,59 @@ public class GenericSyncService {
             return new ArrayList<>();
         }
 
-        List<Integer> successfulLocalIds = new ArrayList<>();
+        List<String> successfulIds = new ArrayList<>();
         List<T> recordsToSave = new ArrayList<>();
         
-        // 1. Extract all localIds from the incoming payload
-        List<Integer> incomingLocalIds = payload.stream()
-                .map(BaseSyncEntity::getLocalId)
+        List<String> incomingIds = payload.stream()
+                .map(BaseSyncEntity::getId)
                 .collect(Collectors.toList());
 
-        // Assuming all records in a single payload come from the same device
-        String deviceId = payload.get(0).getDeviceId();
         long serverTime = System.currentTimeMillis();
 
-        // 2. Fetch all existing records from the DB in ONE query
-        List<T> existingRecords = repository.findByRestaurantIdAndDeviceIdAndLocalIdIn(
-                tenantId, deviceId, incomingLocalIds);
+        // Fetch all existing records by UUID
+        List<T> existingRecords = repository.findAllById(incomingIds);
 
-        // 3. Map existing records by localId for fast O(1) lookup
-        // FIX: Use a merge function (existing, replacement) -> most_recent to handle accidental duplicates in DB
-        Map<Integer, T> existingRecordMap = existingRecords.stream()
+        Map<String, T> existingRecordMap = existingRecords.stream()
                 .collect(Collectors.toMap(
-                        BaseSyncEntity::getLocalId,
-                        Function.identity(),
-                        (existing, replacement) -> existing.getUpdatedAt() > replacement.getUpdatedAt() ? existing : replacement
+                        BaseSyncEntity::getId,
+                        Function.identity()
                 ));
 
-        // 4. Process the payload in memory
         for (T incomingRecord : payload) {
             try {
-                // RECOVERY: If localId is null but id is present, use it
-                if (incomingRecord.getLocalId() == null && incomingRecord.getId() != null) {
-                    incomingRecord.setLocalId(incomingRecord.getId().intValue());
-                    incomingRecord.setId(null); // Clear server ID for new insert
-                }
-
-                if (incomingRecord.getLocalId() == null) {
-                    System.err.println("[GenericSyncService] Skipping record with NULL localId!");
+                if (incomingRecord.getId() == null || incomingRecord.getId().isBlank()) {
+                    System.err.println("[GenericSyncService] Skipping record with NULL/Empty UUID!");
                     continue;
                 }
 
                 incomingRecord.setRestaurantId(tenantId);
-                incomingRecord.setServerUpdatedAt(serverTime); // Enforce Server Time
+                incomingRecord.setServerUpdatedAt(serverTime);
 
-                T existingRecord = existingRecordMap.get(incomingRecord.getLocalId());
+                T existingRecord = existingRecordMap.get(incomingRecord.getId());
 
                 if (existingRecord != null) {
-                    // It exists, check if we need to update
-                    if (incomingRecord.getUpdatedAt() > existingRecord.getUpdatedAt()) {
-                        incomingRecord.setId(existingRecord.getId());
-                        recordsToSave.add(incomingRecord);
-                        successfulLocalIds.add(incomingRecord.getLocalId());
+                    // Idempotency Check: If server version is same or newer, skip save but report success
+                    if (incomingRecord.getUpdatedAt() <= existingRecord.getUpdatedAt()) {
+                        successfulIds.add(incomingRecord.getId());
+                        continue; 
                     }
-                } else {
-                    // It doesn't exist, insert new
+                    // Incoming is newer (collaborative edit or mobile update)
                     recordsToSave.add(incomingRecord);
-                    successfulLocalIds.add(incomingRecord.getLocalId());
+                    successfulIds.add(incomingRecord.getId());
+                } else {
+                    // New record
+                    recordsToSave.add(incomingRecord);
+                    successfulIds.add(incomingRecord.getId());
                 }
             } catch (Exception e) {
-                System.err.println("Sync Error for device " + incomingRecord.getDeviceId() + " : " + e.getMessage());
+                System.err.println("Sync Error for record " + incomingRecord.getId() + " : " + e.getMessage());
             }
         }
 
-        // 5. Save all records to the DB in a single batch
         if (!recordsToSave.isEmpty()) {
             repository.saveAll(recordsToSave);
         }
 
-        System.out.println("\n[GenericSyncService] Successfully batch synced " + successfulLocalIds.size()
-                + " records for Tenant ID: " + tenantId);
-        
-        return successfulLocalIds;
+        return successfulIds;
     }
 }
